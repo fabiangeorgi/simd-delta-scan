@@ -87,6 +87,59 @@ TEST_P(ScanTestFixture, TestScanEq) {
   delete compressed_data;
 }
 
+TEST_P(ScanTestFixture, TestScanEqOwnNoElements) {
+    std::vector<uint32_t> input_numbers(32);
+    for (int i = 0; i < input_numbers.size(); ++i) {
+        input_numbers[i] = i % 6;
+    }
+
+    int8_t* compressed_data = compress_input(input_numbers);
+
+    alignas(64) std::array<uint32_t, 0> result_buffer{};
+    ScanFn fn = GetParam();
+    size_t qualified_tuples =
+            fn(7, 8, compressed_data, input_numbers[0], input_numbers.size(), result_buffer.data());
+
+    EXPECT_EQ(qualified_tuples, 0);
+    EXPECT_THAT(result_buffer, ::testing::ElementsAre());
+
+    delete compressed_data;
+}
+
+TEST_P(ScanTestFixture, TestScanRangeOwnFirstElementIsInRange) {
+    std::vector<uint32_t> input_numbers(16);
+    std::iota(input_numbers.begin(), input_numbers.end(), 1);
+
+    int8_t* compressed_data = compress_input(input_numbers);
+
+    alignas(64) std::array<uint32_t, 4> result_buffer{};
+    ScanFn fn = GetParam();
+    size_t qualified_tuples =
+            fn(1, 4, compressed_data, input_numbers[0], input_numbers.size(), result_buffer.data());
+
+    EXPECT_EQ(qualified_tuples, 4);
+    EXPECT_THAT(result_buffer, ::testing::ElementsAre(1, 2, 3, 4));
+
+    delete compressed_data;
+}
+
+TEST_P(ScanTestFixture, TestScanRangeOwnNoElementInRange) {
+    std::vector<uint32_t> input_numbers(16);
+    std::iota(input_numbers.begin(), input_numbers.end(), 1);
+
+    int8_t* compressed_data = compress_input(input_numbers);
+
+    alignas(64) std::array<uint32_t, 0> result_buffer{};
+    ScanFn fn = GetParam();
+    size_t qualified_tuples =
+            fn(-10, -1, compressed_data, input_numbers[0], input_numbers.size(), result_buffer.data());
+
+    EXPECT_EQ(qualified_tuples, 0);
+    EXPECT_THAT(result_buffer, ::testing::ElementsAre());
+
+    delete compressed_data;
+}
+
 INSTANTIATE_TEST_SUITE_P(DecompressTests, DecompressTestFixture,
                          ::testing::Values(decompress_scalar, decompress_sse, decompress_avx2,
                                            decompress_avx512),
