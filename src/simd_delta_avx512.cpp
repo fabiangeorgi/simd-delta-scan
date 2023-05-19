@@ -4,6 +4,7 @@
 
 void decompress_avx512(const int8_t* __restrict input, uint32_t start_value, size_t input_size,
                        uint32_t* __restrict output) {
+    //_mm256_loadu_epi8 (might be good)
   // TODO: implement
 }
 
