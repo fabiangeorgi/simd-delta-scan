@@ -2,16 +2,8 @@
 
 #include "simd_delta.hpp"
 
-#define DEBUG 1
-
 void decompress_avx2(const int8_t *__restrict input, uint32_t start_value, size_t input_size,
                      uint32_t *__restrict output) {
-#ifdef DEBUG
-    for (int i = 0; i < input_size; ++i) {
-        std::cout << +input[i] << std::endl;
-    }
-    std::cout << start_value << std::endl;
-#endif
     auto previous = (int32_t) start_value;
 
     for (int i = 0; i < input_size; i += 8) {
@@ -44,12 +36,6 @@ void decompress_avx2(const int8_t *__restrict input, uint32_t start_value, size_
 
 size_t scan_avx2(uint32_t predicate_low, uint32_t predicate_high, int8_t *__restrict input,
                  uint32_t start_value, size_t input_size, uint32_t *__restrict output) {
-#ifdef DEBUG
-    for (int i = 0; i < input_size; ++i) {
-        std::cout << +input[i] << std::endl;
-    }
-    std::cout << start_value << std::endl;
-#endif
     size_t count = 0;
     auto previous = (int32_t) start_value;
 
