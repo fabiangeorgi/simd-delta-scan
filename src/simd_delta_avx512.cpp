@@ -6,7 +6,7 @@ const __m512i ZEROSET = _mm512_setzero_si512();
 
 void decompress_avx512(const int8_t *__restrict input, uint32_t start_value, size_t input_size,
                        uint32_t *__restrict output) {
-    auto previousHighest = ZEROSET;
+    auto previousHighest = _mm512_set1_epi32(start_value);
     for (int i = 0; i < input_size; i += 16) {
         // read 16 * int8_t numbers
         auto inputValues = _mm_load_epi32(input + i);
@@ -38,7 +38,7 @@ void decompress_avx512(const int8_t *__restrict input, uint32_t start_value, siz
 size_t scan_avx512(uint32_t predicate_low, uint32_t predicate_high, int8_t *__restrict input,
                    uint32_t start_value, size_t input_size, uint32_t *__restrict output) {
     size_t count = 0;
-    auto previousHighest = ZEROSET;
+    auto previousHighest = _mm512_set1_epi32(start_value);
     auto predicateHighSet = _mm512_set1_epi32(predicate_high);
     auto predicateLowSet = _mm512_set1_epi32(predicate_low);
     for (int i = 0; i < input_size; i += 16) {

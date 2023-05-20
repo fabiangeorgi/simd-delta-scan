@@ -51,6 +51,24 @@ TEST_P(DecompressTestFixture, TestDecompress2) {
   delete compressed_data;
 }
 
+TEST_P(DecompressTestFixture, OwnTestDecompress3) {
+    constexpr int NUM_VALUES = 128;
+    std::vector<uint32_t> input_numbers(NUM_VALUES);
+    input_numbers[0] = 32222;
+    for (int i = 1; i < input_numbers.size(); ++i) {
+        input_numbers[i] = input_numbers[i - 1] + 127;
+    }
+
+    int8_t* compressed_data = compress_input(input_numbers);
+
+    alignas(64) std::array<uint32_t, NUM_VALUES> result_buffer{};
+    DecompressFn fn = GetParam();
+    fn(compressed_data, input_numbers[0], input_numbers.size(), result_buffer.data());
+
+    EXPECT_THAT(result_buffer, ::testing::ElementsAreArray(input_numbers));
+    delete compressed_data;
+}
+
 TEST_P(ScanTestFixture, TestScanRange) {
   std::vector<uint32_t> input_numbers(16);
   std::iota(input_numbers.begin(), input_numbers.end(), 1);
