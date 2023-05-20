@@ -29,9 +29,11 @@ void decompress_avx512(const int8_t *__restrict input, uint32_t start_value, siz
 
         // extract from 512 bit register the top 256 bit register and extract the highest number
         // basically the last element in the register and set1 to generate the offset for our next iteration
-        auto offsetForNextIteration = _mm_extract_epi32(
-                _mm256_extracti32x4_epi32(_mm512_extracti32x8_epi32(result, 1), 1), 3);
-        previousHighest = _mm512_set1_epi32(offsetForNextIteration);
+        // auto offsetForNextIteration = _mm_extract_epi32(
+        // _mm256_extracti32x4_epi32(_mm512_extracti32x8_epi32(result, 1), 1), 3);
+
+        // read directly from output, and we don't need that stuff right here
+        previousHighest = _mm512_set1_epi32(output[i + 15]);
     }
 }
 
